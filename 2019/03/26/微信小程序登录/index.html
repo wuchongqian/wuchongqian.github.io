@@ -79,17 +79,19 @@
 
 
 
-<meta name="description" content="为了小双">
+<meta name="description" content="微信小程序登录流程小程序可以通过微信官方提供的登录能力方便地获取微信提供的用户身份标识，快速建立小程序内的用户体系。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="测试">
-<meta property="og:url" content="http://www.boyanwu.cn/2019/03/22/测试/index.html">
+<meta property="og:title" content="微信小程序登录">
+<meta property="og:url" content="http://www.boyanwu.cn/2019/03/26/微信小程序登录/index.html">
 <meta property="og:site_name" content="小双">
-<meta property="og:description" content="为了小双">
+<meta property="og:description" content="微信小程序登录流程小程序可以通过微信官方提供的登录能力方便地获取微信提供的用户身份标识，快速建立小程序内的用户体系。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-22T09:32:09.928Z">
+<meta property="og:image" content="https://s2.ax1x.com/2019/03/26/AU9FCd.jpg">
+<meta property="og:updated_time" content="2019-03-29T08:33:09.023Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="测试">
-<meta name="twitter:description" content="为了小双">
+<meta name="twitter:title" content="微信小程序登录">
+<meta name="twitter:description" content="微信小程序登录流程小程序可以通过微信官方提供的登录能力方便地获取微信提供的用户身份标识，快速建立小程序内的用户体系。">
+<meta name="twitter:image" content="https://s2.ax1x.com/2019/03/26/AU9FCd.jpg">
 
 
 
@@ -119,13 +121,13 @@
 
 
 
-  <link rel="canonical" href="http://www.boyanwu.cn/2019/03/22/测试/">
+  <link rel="canonical" href="http://www.boyanwu.cn/2019/03/26/微信小程序登录/">
 
 
 
 
 
-  <title>测试 | 小双</title>
+  <title>微信小程序登录 | 小双</title>
   
 
 
@@ -262,7 +264,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.boyanwu.cn/2019/03/22/测试/">
+    <link itemprop="mainEntityOfPage" href="http://www.boyanwu.cn/2019/03/26/微信小程序登录/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="WCQian">
@@ -279,7 +281,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">测试</h1>
+          <h1 class="post-title" itemprop="name headline">微信小程序登录</h1>
         
 
         <div class="post-meta">
@@ -291,8 +293,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-22T17:32:09+08:00">
-                2019-03-22
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-26T16:54:04+08:00">
+                2019-03-26
               </time>
             
 
@@ -329,7 +331,88 @@
       
 
       
-        
+        <h1 id="微信小程序登录流程"><a href="#微信小程序登录流程" class="headerlink" title="微信小程序登录流程"></a>微信小程序登录流程</h1><p>小程序可以通过微信官方提供的登录能力方便地获取微信提供的用户身份标识，快速建立小程序内的用户体系。<br><a id="more"></a></p>
+<h2 id="小程序登录流程图"><a href="#小程序登录流程图" class="headerlink" title="小程序登录流程图"></a>小程序登录流程图</h2><p><img src="https://s2.ax1x.com/2019/03/26/AU9FCd.jpg" alt="小程序流程图示例"></p>
+<p>从上图中，我们可以看出，小程序中登录步骤如下：</p>
+<ol>
+<li><p>小程序前端使用wx.login() 从微信服务器获取code；</p>
+</li>
+<li><p>小程序前端将code 发送给后端，后端利用appId、appSecret 和code 向微信服务器换换取用户openId 和session_key；</p>
+</li>
+<li><p>后端生成一个3rd_session，将3rd_session与得到的openId以及seeeion_key关联存储；</p>
+</li>
+<li><p>开发者服务器将3rd_session返回给小程序前端，小程序前端使用wx.setStorageSync() 将登录态保存起来；</p>
+</li>
+<li><p>小程序前端在执行业务请求时将3rd_session发送给后端，以便后端知道当前操作的用户是哪位。</p>
+</li>
+</ol>
+<p>微信接口：</p>
+<blockquote>
+<p>GET <a href="https://api.weixin.qq.com/sns/jscode2session?appid=APPID&amp;secret=SECRET&amp;js_code=JSCODE&amp;grant_type=authorization_code" target="_blank" rel="noopener">https://api.weixin.qq.com/sns/jscode2session?appid=APPID&amp;secret=SECRET&amp;js_code=JSCODE&amp;grant_type=authorization_code</a></p>
+</blockquote>
+<p>请求参数：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>appid</td>
+<td>是</td>
+<td>小程序唯一标识</td>
+</tr>
+<tr>
+<td>secret</td>
+<td>是</td>
+<td>小程序的 app secret</td>
+</tr>
+<tr>
+<td>js_code</td>
+<td>是</td>
+<td>登录时获取的 code</td>
+</tr>
+<tr>
+<td>grant_type</td>
+<td>是</td>
+<td>填写为 authorization_code</td>
+</tr>
+</tbody>
+</table>
+<p>返回参数</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>openid</td>
+<td>用户唯一标识</td>
+</tr>
+<tr>
+<td>session_key</td>
+<td>会话密钥</td>
+</tr>
+<tr>
+<td>unionid</td>
+<td>用户在开放平台的唯一标识符。本字段在满足一定条件的情况下才返回</td>
+</tr>
+</tbody>
+</table>
+<p>代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">@ResponseBody</span><br><span class="line"> </span><br><span class="line">    @RequestMapping(&quot;/login/&#123;code&#125;&quot;)</span><br><span class="line"> </span><br><span class="line">    public String login(@PathVariable(&quot;code&quot;) String code) &#123;</span><br><span class="line"> </span><br><span class="line">        String url = &quot;https://api.weixin.qq.com/sns/jscode2session&quot;;</span><br><span class="line">        Map&lt;String, String&gt; param = new HashMap&lt;&gt;();</span><br><span class="line">        param.put(&quot;appid&quot;, WxApp.APPID);</span><br><span class="line">        param.put(&quot;secret&quot;, WxApp.SECRET);</span><br><span class="line">        param.put(&quot;js_code&quot;, code);</span><br><span class="line">        param.put(&quot;grant_type&quot;, &quot;authorization_code&quot;);</span><br><span class="line"> </span><br><span class="line">        JSONObject object = HttpClientUtils.httpGet(url, param);</span><br><span class="line"> </span><br><span class="line">        // 请求，获取openid或unionid</span><br><span class="line"> </span><br><span class="line">        // 从数据库中查询是否存储</span><br><span class="line"> </span><br><span class="line">        String unionid = (String) object.get(&quot;unionid&quot;);</span><br><span class="line"> </span><br><span class="line">        String openid = (String) object.get(&quot;openid&quot;);//用户唯一标识</span><br><span class="line"> </span><br><span class="line">        // 会话密钥session_key 是对用户数据进行加密签名的密钥。为了应用自身的数据安全，开发者服务器不应该把会话密钥下发到小程序，也不应该对外提供这个密钥。</span><br><span class="line"> </span><br><span class="line">        String session_key = (String) object.get(&quot;session_key&quot;);</span><br><span class="line"> </span><br><span class="line">        String key = &quot;wecharminiprogramkey-&quot; + UUID.randomUUID().toString().replaceAll(&quot;-&quot;, &quot;&quot;);</span><br><span class="line"> </span><br><span class="line">        RedisUtil.setEx(key, openid + &quot;---&quot; + session_key, 9600);</span><br><span class="line"> </span><br><span class="line">        return key;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="获取微信用户信息"><a href="#获取微信用户信息" class="headerlink" title="获取微信用户信息"></a>获取微信用户信息</h2><p>通过wx.login()登录之后。小程序端可以通过wx.getUserInfo()获取用户信息。其中一些不敏感的信息在返回的 result中的userInfo里。如想要获取敏感信息。openid,unionid之类的。则需要从密文中去解密得到。</p>
+<p>而密文则在encryptedData这个字段当中。我们去请求后端去解密然后得到敏感信息后则可以保存起来。</p>
+<blockquote>
+<p>小程序登录API文档：<a href="https://developers.weixin.qq.com/miniprogram/dev/api/wx.login.html" target="_blank" rel="noopener">https://developers.weixin.qq.com/miniprogram/dev/api/wx.login.html</a></p>
+</blockquote>
+
       
     </div>
     
@@ -413,8 +496,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -456,6 +548,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#微信小程序登录流程"><span class="nav-number">1.</span> <span class="nav-text">微信小程序登录流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#小程序登录流程图"><span class="nav-number">1.1.</span> <span class="nav-text">小程序登录流程图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取微信用户信息"><span class="nav-number">1.2.</span> <span class="nav-text">获取微信用户信息</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
