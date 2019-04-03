@@ -1822,7 +1822,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #475dff;
+  background: #ccc2ff;
 }
 .links-of-blogroll {
   font-size: 13px;
@@ -2905,7 +2905,7 @@ hr {
   }
 }
 body {
-  background: url("https://s2.ax1x.com/2019/03/26/AN3fsK.md.jpg") no-repeat;
+  background: url("https://s2.ax1x.com/2019/04/03/AcBIns.jpg") no-repeat;
 /* 背景图垂直、水平均居中 */
   background-position: center center;
 /* 当内容高度大于图片高度时，背景图像的位置相对于viewport固定 */
@@ -2916,7 +2916,7 @@ body {
   background-color: rgba(0,0,0,0.5);
 }
 #sidebar {
-  background: url("https://s2.ax1x.com/2019/03/26/ANUMfe.jpg");
+  background: url("/AcB4Xj.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

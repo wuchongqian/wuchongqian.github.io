@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="微信支付流程微信支付开放的能力主要分2大类，普通模式和服务商模式。我们暂时讨论普通模式。  最常规的普通模式，适用于有自己开发团队或外包开发商的直连商户收款。开发者申请自己的 appid和mch_id，两者需具备绑定关系，以此来使用微信支付提供的开放接口，对用户提供服务。  小程序支付的交互图如下： 由上图，服务器端发起订单需要以下五小步:   获取openid     生成商户订单     调用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="微信支付流程梳理">
+<meta property="og:url" content="http://www.boyanwu.cn/2019/04/01/微信支付流程梳理/index.html">
+<meta property="og:site_name" content="小双">
+<meta property="og:description" content="微信支付流程微信支付开放的能力主要分2大类，普通模式和服务商模式。我们暂时讨论普通模式。  最常规的普通模式，适用于有自己开发团队或外包开发商的直连商户收款。开发者申请自己的 appid和mch_id，两者需具备绑定关系，以此来使用微信支付提供的开放接口，对用户提供服务。  小程序支付的交互图如下： 由上图，服务器端发起订单需要以下五小步:   获取openid     生成商户订单     调用">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/03/Ac0tzQ.jpg">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/03/Ac0JJS.png">
+<meta property="og:updated_time" content="2019-04-03T03:34:55.089Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="微信支付流程梳理">
+<meta name="twitter:description" content="微信支付流程微信支付开放的能力主要分2大类，普通模式和服务商模式。我们暂时讨论普通模式。  最常规的普通模式，适用于有自己开发团队或外包开发商的直连商户收款。开发者申请自己的 appid和mch_id，两者需具备绑定关系，以此来使用微信支付提供的开放接口，对用户提供服务。  小程序支付的交互图如下： 由上图，服务器端发起订单需要以下五小步:   获取openid     生成商户订单     调用">
+<meta name="twitter:image" content="https://s2.ax1x.com/2019/04/03/Ac0tzQ.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.boyanwu.cn/2019/04/01/微信支付流程梳理/">
+
+
+
+
+
+  <title>微信支付流程梳理 | 小双</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小双</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.boyanwu.cn/2019/04/01/微信支付流程梳理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="WCQian">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小双">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">微信支付流程梳理</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-01T14:21:57+08:00">
+                2019-04-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="微信支付流程"><a href="#微信支付流程" class="headerlink" title="微信支付流程"></a>微信支付流程</h1><pre><code>微信支付开放的能力主要分2大类，普通模式和服务商模式。我们暂时讨论普通模式。
+</code></pre><blockquote>
+<p>最常规的普通模式，适用于有自己开发团队或外包开发商的直连商户收款。开发者申请自己的 appid和mch_id，两者需具备绑定关系，以此来使用微信支付提供的开放接口，对用户提供服务。</p>
+</blockquote>
+<p>小程序支付的交互图如下：<br><img src="https://s2.ax1x.com/2019/04/03/Ac0tzQ.jpg" alt="微信支付流程"></p>
+<p>由上图，服务器端发起订单需要以下五小步:</p>
+<blockquote>
+<ul>
+<li>获取openid</li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>生成商户订单</li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>调用支付统一下单API</li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>获取预支付会话标识 prepayId</li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>将组合数据签名并返回</li>
+</ul>
+</blockquote>
+<h2 id="获取openid"><a href="#获取openid" class="headerlink" title="获取openid"></a>获取openid</h2><p>小程序授权登录获得后，保存在己方数据库</p>
+<h2 id="生成商户订单"><a href="#生成商户订单" class="headerlink" title="生成商户订单"></a>生成商户订单</h2><p>微信文档中是这么写的：</p>
+<p><img src="https://s2.ax1x.com/2019/04/03/Ac0JJS.png" alt="商户号"></p>
+<blockquote>
+<p>商户支付的订单号由商户自定义生成，仅支持使用字母、数字、中划线-、下划线_、竖线|、星号这些英文半角字符的组合，请勿使用汉字或全角等特殊字符。微信支付要求商户订单号保持唯一性（<strong>建议根据当前系统时间加随机序列来生成订单号</strong>）。重新发起一笔支付要使用原订单号，避免重复支付；已支付过或已调用关单、撤销（请见后文的API列表）的订单号不能重新发起支付。</p>
+</blockquote>
+<p>代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public static String createOrderId(int codeLength) &#123;</span><br><span class="line">    String today = new SimpleDateFormat(&quot;yyyyMMddHHmmss&quot;).format(new Date());</span><br><span class="line">    String code = &quot;&quot;;</span><br><span class="line">    for (int i = 0; i &lt; codeLength; i++) &#123;</span><br><span class="line">        code += (int) (Math.random() * 9);</span><br><span class="line">    &#125;</span><br><span class="line">    return today + code;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="调用支付统一下单API"><a href="#调用支付统一下单API" class="headerlink" title="调用支付统一下单API"></a>调用支付统一下单API</h2><p>第三步调用支付统一下单API（将必传参数整理成xml格式，发送给下单url）</p>
+<blockquote>
+<p>下单接口链接：<a href="https://api.mch.weixin.qq.com/pay/unifiedorder" target="_blank" rel="noopener">https://api.mch.weixin.qq.com/pay/unifiedorder</a></p>
+</blockquote>
+<p>发送参数举例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;xml&gt;</span><br><span class="line">   &lt;appid&gt;wx2421b1c4370ec43b&lt;/appid&gt;</span><br><span class="line">   &lt;attach&gt;支付测试&lt;/attach&gt;</span><br><span class="line">   &lt;body&gt;JSAPI支付测试&lt;/body&gt;</span><br><span class="line">   &lt;mch_id&gt;10000100&lt;/mch_id&gt;</span><br><span class="line">   &lt;detail&gt;&lt;![CDATA[&#123; &quot;goods_detail&quot;:[ &#123; &quot;goods_id&quot;:&quot;iphone6s_16G&quot;, &quot;wxpay_goods_id&quot;:&quot;1001&quot;, &quot;goods_name&quot;:&quot;iPhone6s 16G&quot;, &quot;quantity&quot;:1, &quot;price&quot;:528800, &quot;goods_category&quot;:&quot;123456&quot;, &quot;body&quot;:&quot;苹果手机&quot; &#125;, &#123; &quot;goods_id&quot;:&quot;iphone6s_32G&quot;, &quot;wxpay_goods_id&quot;:&quot;1002&quot;, &quot;goods_name&quot;:&quot;iPhone6s 32G&quot;, &quot;quantity&quot;:1, &quot;price&quot;:608800, &quot;goods_category&quot;:&quot;123789&quot;, &quot;body&quot;:&quot;苹果手机&quot; &#125; ] &#125;]]&gt;&lt;/detail&gt;</span><br><span class="line">   &lt;nonce_str&gt;1add1a30ac87aa2db72f57a2375d8fec&lt;/nonce_str&gt;</span><br><span class="line">   &lt;notify_url&gt;http://wxpay.wxutil.com/pub_v2/pay/notify.v2.php&lt;/notify_url&gt;</span><br><span class="line">   &lt;openid&gt;oUpF8uMuAJO_M2pxb1Q9zNjWeS6o&lt;/openid&gt;</span><br><span class="line">   &lt;out_trade_no&gt;1415659990&lt;/out_trade_no&gt;</span><br><span class="line">   &lt;spbill_create_ip&gt;14.23.150.211&lt;/spbill_create_ip&gt;</span><br><span class="line">   &lt;total_fee&gt;1&lt;/total_fee&gt;</span><br><span class="line">   &lt;trade_type&gt;JSAPI&lt;/trade_type&gt;</span><br><span class="line">   &lt;sign&gt;0CB01533B8C1EF103065174F50BCA001&lt;/sign&gt;</span><br><span class="line">&lt;/xml&gt;</span><br></pre></td></tr></table></figure></p>
+<p>后台代码示例参考如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">  /**</span><br><span class="line">   * 调用统一下单接口</span><br><span class="line">   * @param openId</span><br><span class="line">   */</span><br><span class="line">  private String unifiedOrder(String openId, HttpServletRequest request, String randomNonceStr) &#123;</span><br><span class="line"> </span><br><span class="line">      try &#123;</span><br><span class="line"> </span><br><span class="line">          String url = &quot;https://api.mch.weixin.qq.com/pay/unifiedorder&quot;;</span><br><span class="line">          </span><br><span class="line">          String clientIP = PayUtils.getIpAddr(request);//获取终端IP</span><br><span class="line">          PayInfo payInfo = createPayInfo(openId, clientIP, randomNonceStr);</span><br><span class="line">          String md5 = getSign(payInfo);</span><br><span class="line">          payInfo.setSign(md5);</span><br><span class="line"> </span><br><span class="line">          log.error(&quot;md5 value: &quot; + md5);</span><br><span class="line">          //转换成发送的xml</span><br><span class="line">          String xml = CommonUtil.payInfoToXML(payInfo);</span><br><span class="line">          xml = xml.replace(&quot;__&quot;, &quot;_&quot;).replace(&quot;&lt;![CDATA[1]]&gt;&quot;, &quot;1&quot;);</span><br><span class="line">         </span><br><span class="line"> </span><br><span class="line">          StringBuffer buffer = HttpUtil.httpsRequest(url, &quot;POST&quot;, xml);</span><br><span class="line">          </span><br><span class="line">          //将xml结果转为map</span><br><span class="line">          Map&lt;String, String&gt; result = CommonUtil.parseXml(buffer.toString());</span><br><span class="line"> </span><br><span class="line">          String return_code = result.get(&quot;return_code&quot;);</span><br><span class="line">          JSONObject jsonObject = new JSONObject();</span><br><span class="line">          if(StringUtils.isNotBlank(return_code) &amp;&amp; return_code.equals(&quot;SUCCESS&quot;)) &#123;</span><br><span class="line"> </span><br><span class="line">              String return_msg = result.get(&quot;return_msg&quot;);</span><br><span class="line">              String prepay_id = result.get(&quot;prepay_id&quot;);//返回的预付单信息</span><br><span class="line">              String nonceStr = UUID.randomUUID().toString().replace(&quot;-&quot;, &quot;&quot;);</span><br><span class="line">              jsonObject.put(&quot;nonceStr&quot;, nonceStr);</span><br><span class="line">              jsonObject.put(&quot;package&quot;, &quot;prepay_id=&quot; + prepay_id);</span><br><span class="line">              Long timeStamp = System.currentTimeMillis() / 1000;</span><br><span class="line">              jsonObject.put(&quot;timeStamp&quot;, timeStamp + &quot;&quot;);</span><br><span class="line">              String stringSignTemp = &quot;appId=&quot; + appid + &quot;&amp;nonceStr=&quot; + nonceStr + &quot;&amp;package=prepay_id=&quot; + prepay_id + &quot;&amp;signType=MD5&amp;timeStamp=&quot; + timeStamp;</span><br><span class="line">              //再次签名</span><br><span class="line">              String paySign = PayUtils.sign(stringSignTemp, key, &quot;utf-8&quot;).toUpperCase();</span><br><span class="line">              jsonObject.put(&quot;paySign&quot;, paySign);</span><br><span class="line">              jsonObject.put(&quot;openid&quot;, openid);</span><br><span class="line"> </span><br><span class="line">          &#125; else &#123;</span><br><span class="line">              return &quot;&quot;;</span><br><span class="line">          &#125;</span><br><span class="line"> </span><br><span class="line">      &#125; catch (Exception e) &#123;</span><br><span class="line">          e.printStackTrace();</span><br><span class="line">      &#125;</span><br><span class="line"> </span><br><span class="line">      return jsonObject;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  /**</span><br><span class="line">   * @Title: getIpAddress</span><br><span class="line">   * @Description: 获取客户端真实IP地址</span><br><span class="line">   * @author yihj</span><br><span class="line">   * @param @param request</span><br><span class="line">   * @param @param response</span><br><span class="line">   * @param @return    参数</span><br><span class="line">   * @return String    返回类型</span><br><span class="line">   * @throws</span><br><span class="line">   */</span><br><span class="line">  public static String getIpAddress(HttpServletRequest request) &#123;</span><br><span class="line">      // 避免反向代理不能获取真实地址, 取X-Forwarded-For中第一个非unknown的有效IP字符串</span><br><span class="line">      String ip = request.getHeader(&quot;x-forwarded-for&quot;);</span><br><span class="line">     if (ip == null || ip.length() == 0 || &quot;unknown&quot;.equalsIgnoreCase(ip))&#123;</span><br><span class="line">         ip = request.getHeader(&quot;Proxy-Client-IP&quot;);</span><br><span class="line">     &#125;</span><br><span class="line">     if (ip == null || ip.length() == 0 || &quot;unknown&quot;.equalsIgnoreCase(ip))&#123;</span><br><span class="line">         ip = request.getHeader(&quot;WL-Proxy-Client-IP&quot;);</span><br><span class="line">     &#125;</span><br><span class="line">     if (ip == null || ip.length() == 0 || &quot;unknown&quot;.equalsIgnoreCase(ip))&#123;</span><br><span class="line">         ip = request.getRemoteAddr();</span><br><span class="line">     &#125;</span><br><span class="line">      return ip;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  /**</span><br><span class="line">   * 生成订单信息</span><br><span class="line">   * @param openId</span><br><span class="line">* @param clientIP</span><br><span class="line">* @param randomNonceStr</span><br><span class="line">   */</span><br><span class="line">  private PayInfo createPayInfo(Integer fee, String openId, String clientIP, String randomNonceStr) &#123;</span><br><span class="line"> </span><br><span class="line">      Date date = new Date();</span><br><span class="line">      String timeStart = TimeUtils.getFormatTime(date, Constant.TIME_FORMAT);</span><br><span class="line">      String timeExpire = TimeUtils.getFormatTime(TimeUtils.addDay(date, Constant.TIME_EXPIRE), Constant.TIME_FORMAT);</span><br><span class="line">      //生成商户订单</span><br><span class="line">      String today = new SimpleDateFormat(&quot;yyyyMMddHHmmss&quot;).format(new Date());</span><br><span class="line">      String code = PayUtils.createCode(8);</span><br><span class="line">      String out_trade_no = today + code;</span><br><span class="line"> </span><br><span class="line">      PayInfo payInfo = new PayInfo();</span><br><span class="line">      payInfo.setAppid(Constant.APP_ID);</span><br><span class="line">      payInfo.setMch_id(Constant.MCH_ID);</span><br><span class="line">      payInfo.setNonce_str(randomNonceStr);</span><br><span class="line">      payInfo.setSign_type(&quot;MD5&quot;);  //默认即为MD5</span><br><span class="line">      payInfo.setBody(&quot;JSAPI支付测试&quot;);</span><br><span class="line">      payInfo.setAttach(&quot;支付测试4luluteam&quot;);</span><br><span class="line">      payInfo.setOut_trade_no(out_trade_no);</span><br><span class="line">      payInfo.setTotal_fee(fee);</span><br><span class="line">      payInfo.setSpbill_create_ip(clientIP);</span><br><span class="line">      payInfo.setTime_start(timeStart);</span><br><span class="line">      payInfo.setTime_expire(timeExpire);</span><br><span class="line">      payInfo.setNotify_url(Constant.URL_NOTIFY);</span><br><span class="line">      payInfo.setTrade_type(&quot;JSAPI&quot;);</span><br><span class="line">      payInfo.setOpenid(openId);</span><br><span class="line"> </span><br><span class="line">      return payInfo;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  /**</span><br><span class="line">   * 对订单信息签名</span><br><span class="line">   * @param payInfo</span><br><span class="line">   */</span><br><span class="line">  private String getSign(PayInfo payInfo) throws Exception &#123;</span><br><span class="line">      StringBuffer sb = new StringBuffer();</span><br><span class="line">      sb.append(&quot;appid=&quot; + payInfo.getAppid())</span><br><span class="line">              .append(&quot;&amp;attach=&quot; + payInfo.getAttach())</span><br><span class="line">              .append(&quot;&amp;body=&quot; + payInfo.getBody())</span><br><span class="line">              .append(&quot;&amp;mch_id=&quot; + payInfo.getMch_id())</span><br><span class="line">              .append(&quot;&amp;nonce_str=&quot; + payInfo.getNonce_str())</span><br><span class="line">              .append(&quot;&amp;notify_url=&quot; + payInfo.getNotify_url())</span><br><span class="line">              .append(&quot;&amp;openid=&quot; + payInfo.getOpenid())</span><br><span class="line">              .append(&quot;&amp;out_trade_no=&quot; + payInfo.getOut_trade_no())</span><br><span class="line">              .append(&quot;&amp;sign_type=&quot; + payInfo.getSign_type())</span><br><span class="line">              .append(&quot;&amp;spbill_create_ip=&quot; + payInfo.getSpbill_create_ip())</span><br><span class="line">              .append(&quot;&amp;time_expire=&quot; + payInfo.getTime_expire())</span><br><span class="line">              .append(&quot;&amp;time_start=&quot; + payInfo.getTime_start())</span><br><span class="line">              .append(&quot;&amp;total_fee=&quot; + payInfo.getTotal_fee())</span><br><span class="line">              .append(&quot;&amp;trade_type=&quot; + payInfo.getTrade_type())</span><br><span class="line">              .append(&quot;&amp;key=&quot; + Constant.APP_KEY);</span><br><span class="line"> </span><br><span class="line">      log.error(&quot;排序后的拼接参数：&quot; + sb.toString());</span><br><span class="line"> </span><br><span class="line">      return CommonUtil.getMD5(sb.toString().trim()).toUpperCase();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>返回结果举例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;xml&gt;</span><br><span class="line">   &lt;return_code&gt;&lt;![CDATA[SUCCESS]]&gt;&lt;/return_code&gt;</span><br><span class="line">   &lt;return_msg&gt;&lt;![CDATA[OK]]&gt;&lt;/return_msg&gt;</span><br><span class="line">   &lt;appid&gt;&lt;![CDATA[wx2421b1c4370ec43b]]&gt;&lt;/appid&gt;</span><br><span class="line">   &lt;mch_id&gt;&lt;![CDATA[10000100]]&gt;&lt;/mch_id&gt;</span><br><span class="line">   &lt;nonce_str&gt;&lt;![CDATA[IITRi8Iabbblz1Jc]]&gt;&lt;/nonce_str&gt;</span><br><span class="line">   &lt;openid&gt;&lt;![CDATA[oUpF8uMuAJO_M2pxb1Q9zNjWeS6o]]&gt;&lt;/openid&gt;</span><br><span class="line">   &lt;sign&gt;&lt;![CDATA[7921E432F65EB8ED0CE9755F0E86D72F]]&gt;&lt;/sign&gt;</span><br><span class="line">   &lt;result_code&gt;&lt;![CDATA[SUCCESS]]&gt;&lt;/result_code&gt;</span><br><span class="line">   &lt;prepay_id&gt;&lt;![CDATA[wx201411101639507cbf6ffd8b0779950874]]&gt;&lt;/prepay_id&gt;</span><br><span class="line">   &lt;trade_type&gt;&lt;![CDATA[JSAPI]]&gt;&lt;/trade_type&gt;</span><br><span class="line">&lt;/xml&gt;</span><br></pre></td></tr></table></figure></p>
+<p>具体入参及返回结果参照<a href="https://pay.weixin.qq.com/wiki/doc/api/wxa/wxa_api.php?chapter=9_1#" target="_blank" rel="noopener">微信官方API统一下单页</a></p>
+<blockquote>
+<p>微信官方API页面：<a href="https://pay.weixin.qq.com/wiki/doc/api/wxa/wxa_api.php?chapter=9_1" target="_blank" rel="noopener">https://pay.weixin.qq.com/wiki/doc/api/wxa/wxa_api.php?chapter=9_1</a></p>
+</blockquote>
+<blockquote>
+<p>签名算法说明：<a href="https://pay.weixin.qq.com/wiki/doc/api/wxa/wxa_api.php?chapter=4_3" target="_blank" rel="noopener">https://pay.weixin.qq.com/wiki/doc/api/wxa/wxa_api.php?chapter=4_3</a></p>
+</blockquote>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><ol>
+<li><p>所有的签名和发送微信服务器的数据必须一致,包括Key的大小写,否则签名失败</p>
+</li>
+<li><p>微信小程序 前端调用接口的时候,文档上并没有写appId参数.该参数一定要,并且是大写</p>
+</li>
+<li><p>交易类型 为 JSAPI 的时候,则必须传入openid</p>
+</li>
+<li><p>body格式问题 写的是UTF-8 实际要的格式则是ISO8859-1 而且单独对body进行设置好像不好使 所以必须全部都改成该格式</p>
+</li>
+<li><p>生成签名 最后加上key的格式是 &amp;key = KEY, 而且不是直接 + key 这个地方需要注意一下</p>
+</li>
+<li><p>数据包ID 格式 不是 value直接设置成 数据包ID就可以 前面需要加 “prepay_id=”</p>
+</li>
+<li><p>最后一点强调 <strong>生成签名的数据和发送服务器的数据 必须保持一致</strong></p>
+</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/26/微信小程序登录/" rel="next" title="微信小程序登录">
+                <i class="fa fa-chevron-left"></i> 微信小程序登录
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">WCQian</p>
+              <p class="site-description motion-element" itemprop="description">为了小双</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#微信支付流程"><span class="nav-number">1.</span> <span class="nav-text">微信支付流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#获取openid"><span class="nav-number">1.1.</span> <span class="nav-text">获取openid</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生成商户订单"><span class="nav-number">1.2.</span> <span class="nav-text">生成商户订单</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#调用支付统一下单API"><span class="nav-number">1.3.</span> <span class="nav-text">调用支付统一下单API</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注意事项"><span class="nav-number">1.4.</span> <span class="nav-text">注意事项</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WCQian</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+  <script type="text/javascript" src="/js/src/js.cookie.js?v=5.1.4"></script>
+  <script type="text/javascript" src="/js/src/scroll-cookie.js?v=5.1.4"></script>
+
+
+  
+
+</body>
+</html>

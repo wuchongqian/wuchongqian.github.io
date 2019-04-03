@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="微信小程序登录流程小程序可以通过微信官方提供的登录能力方便地获取微信提供的用户身份标识，快速建立小程序内的用户体系。">
+<meta name="description" content="微信小程序登录流程梳理小程序可以通过微信官方提供的登录能力方便地获取微信提供的用户身份标识，快速建立小程序内的用户体系。 小程序认证流程（wx.checkSession）小程序调用 wx.checkSession 接口检测当前用户登录态是否有效  success ：接口调用成功的回调函数，session_key未过期，流程结束；     fail ：接口调用失败的回调函数，session_key已">
 <meta property="og:type" content="article">
 <meta property="og:title" content="微信小程序登录">
 <meta property="og:url" content="http://www.boyanwu.cn/2019/03/26/微信小程序登录/index.html">
 <meta property="og:site_name" content="小双">
-<meta property="og:description" content="微信小程序登录流程小程序可以通过微信官方提供的登录能力方便地获取微信提供的用户身份标识，快速建立小程序内的用户体系。">
+<meta property="og:description" content="微信小程序登录流程梳理小程序可以通过微信官方提供的登录能力方便地获取微信提供的用户身份标识，快速建立小程序内的用户体系。 小程序认证流程（wx.checkSession）小程序调用 wx.checkSession 接口检测当前用户登录态是否有效  success ：接口调用成功的回调函数，session_key未过期，流程结束；     fail ：接口调用失败的回调函数，session_key已">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://s2.ax1x.com/2019/03/26/AU9FCd.jpg">
-<meta property="og:updated_time" content="2019-03-29T08:33:09.023Z">
+<meta property="og:updated_time" content="2019-04-03T03:34:50.946Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="微信小程序登录">
-<meta name="twitter:description" content="微信小程序登录流程小程序可以通过微信官方提供的登录能力方便地获取微信提供的用户身份标识，快速建立小程序内的用户体系。">
+<meta name="twitter:description" content="微信小程序登录流程梳理小程序可以通过微信官方提供的登录能力方便地获取微信提供的用户身份标识，快速建立小程序内的用户体系。 小程序认证流程（wx.checkSession）小程序调用 wx.checkSession 接口检测当前用户登录态是否有效  success ：接口调用成功的回调函数，session_key未过期，流程结束；     fail ：接口调用失败的回调函数，session_key已">
 <meta name="twitter:image" content="https://s2.ax1x.com/2019/03/26/AU9FCd.jpg">
 
 
@@ -331,19 +331,24 @@
       
 
       
-        <h1 id="微信小程序登录流程"><a href="#微信小程序登录流程" class="headerlink" title="微信小程序登录流程"></a>微信小程序登录流程</h1><p>小程序可以通过微信官方提供的登录能力方便地获取微信提供的用户身份标识，快速建立小程序内的用户体系。<br><a id="more"></a></p>
+        <h1 id="微信小程序登录流程梳理"><a href="#微信小程序登录流程梳理" class="headerlink" title="微信小程序登录流程梳理"></a>微信小程序登录流程梳理</h1><p>小程序可以通过微信官方提供的登录能力方便地获取微信提供的用户身份标识，快速建立小程序内的用户体系。</p>
+<h2 id="小程序认证流程（wx-checkSession）"><a href="#小程序认证流程（wx-checkSession）" class="headerlink" title="小程序认证流程（wx.checkSession）"></a>小程序认证流程（wx.checkSession）</h2><p>小程序调用 wx.checkSession 接口检测当前用户登录态是否有效</p>
+<blockquote>
+<p>success ：接口调用成功的回调函数，session_key未过期，流程结束；    </p>
+<p>fail ：接口调用失败的回调函数，session_key已过期，调用wx.login开始小程序登录；</p>
+</blockquote>
 <h2 id="小程序登录流程图"><a href="#小程序登录流程图" class="headerlink" title="小程序登录流程图"></a>小程序登录流程图</h2><p><img src="https://s2.ax1x.com/2019/03/26/AU9FCd.jpg" alt="小程序流程图示例"></p>
 <p>从上图中，我们可以看出，小程序中登录步骤如下：</p>
 <ol>
-<li><p>小程序前端使用wx.login() 从微信服务器获取code；</p>
+<li><p>小程序端 wx.login 获取code 并 wx.request 提交code给己方服务器</p>
 </li>
 <li><p>小程序前端将code 发送给后端，后端利用appId、appSecret 和code 向微信服务器换换取用户openId 和session_key；</p>
 </li>
-<li><p>后端生成一个3rd_session，将3rd_session与得到的openId以及seeeion_key关联存储；</p>
+<li><p>后端根据 session_key &amp; openid生成一个3rd_session，将3rd_session与得到的openId以及seeeion_key关联存储；</p>
 </li>
 <li><p>开发者服务器将3rd_session返回给小程序前端，小程序前端使用wx.setStorageSync() 将登录态保存起来；</p>
 </li>
-<li><p>小程序前端在执行业务请求时将3rd_session发送给后端，以便后端知道当前操作的用户是哪位。</p>
+<li><p>小程序端 wx.getUserInfo 获取用户信息 + wx.getStorage 获取 3rd_session 数据后，一并 wx.request 提交给己方服务器，并存储到数据库；</p>
 </li>
 </ol>
 <p>微信接口：</p>
@@ -436,15 +441,15 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/03/11/hello-world/" rel="next" title="Hello World">
-                <i class="fa fa-chevron-left"></i> Hello World
-              </a>
-            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/01/微信支付流程梳理/" rel="prev" title="微信支付流程梳理">
+                微信支付流程梳理 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -558,7 +563,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#微信小程序登录流程"><span class="nav-number">1.</span> <span class="nav-text">微信小程序登录流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#小程序登录流程图"><span class="nav-number">1.1.</span> <span class="nav-text">小程序登录流程图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取微信用户信息"><span class="nav-number">1.2.</span> <span class="nav-text">获取微信用户信息</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#微信小程序登录流程梳理"><span class="nav-number">1.</span> <span class="nav-text">微信小程序登录流程梳理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#小程序认证流程（wx-checkSession）"><span class="nav-number">1.1.</span> <span class="nav-text">小程序认证流程（wx.checkSession）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小程序登录流程图"><span class="nav-number">1.2.</span> <span class="nav-text">小程序登录流程图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取微信用户信息"><span class="nav-number">1.3.</span> <span class="nav-text">获取微信用户信息</span></a></li></ol></li></ol></div>
             
 
           </div>
